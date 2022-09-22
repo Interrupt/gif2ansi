@@ -1,4 +1,4 @@
-package img2ansi
+package main
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 
-	"github.com/johnmccabe/img2ansi/palette"
+	"github.com/Interrupt/gif2ansi/palette"
 )
 
 const alphaThreshold = 30
