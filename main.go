@@ -9,10 +9,15 @@ import (
 	"time"
 
 	"atomicgo.dev/cursor"
+	"github.com/mattn/go-tty"
 )
 
 var imageFile string
 var border int
+var height int
+
+var ttyTerm *tty.TTY
+var err error
 
 func main() {
 	if len(os.Args) != 2 {
@@ -21,6 +26,12 @@ func main() {
 		fmt.Println(fmt.Sprintf(usage, path.Base(os.Args[0])))
 		os.Exit(1)
 	}
+
+	ttyTerm, err = tty.Open()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer ttyTerm.Close()
 
 	// Top gutter
 	fmt.Println("")
@@ -38,6 +49,9 @@ func main() {
 	}
 
 	frameCount := len(gif.Image)
+	height = gif.Config.Height + 1
+
+	go watchForKeyPress()
 
 	// Draw each gif frame into the terminal
 	for i := 0; i < frameCount; i++ {
@@ -62,4 +76,20 @@ func main() {
 
 	// Bottom gutter
 	fmt.Println("")
+}
+
+func watchForKeyPress() {
+	// Wait for a keypress
+	_, err := ttyTerm.ReadRune()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Move the cursor down past the gif manually
+	for i := 0; i < (height/2)+1; i++ {
+		fmt.Printf("\n")
+	}
+
+	ttyTerm.Close()
+	os.Exit(1)
 }
